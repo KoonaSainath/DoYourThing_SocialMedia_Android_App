@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "604378181508",
+    "project_id": "do-your-thing-ff276",
+    "storage_bucket": "do-your-thing-ff276.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604378181508:android:502c17b1a250ef63bc77d1",
+        "android_client_info": {
+          "package_name": "firebase.kunasainath.doyourthing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604378181508-k17jvkhsh94c0g3fiptl3q8rsb3q9mj1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9RX8OihViGFFTTF9YlbjaYoyBpHu9KT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604378181508-k17jvkhsh94c0g3fiptl3q8rsb3q9mj1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
