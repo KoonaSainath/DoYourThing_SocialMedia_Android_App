@@ -1,8 +1,10 @@
-package firebase.kunasainath.doyourthing;
+package firebase.kunasainath.doyourthing.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import firebase.kunasainath.doyourthing.R;
 
 public class MainActivity extends AppCompatActivity {
 
