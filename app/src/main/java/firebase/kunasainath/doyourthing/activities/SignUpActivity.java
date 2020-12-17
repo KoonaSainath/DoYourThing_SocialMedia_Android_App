@@ -3,12 +3,13 @@ package firebase.kunasainath.doyourthing.activities;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.signup_fragments.LoginFragment;
 import firebase.kunasainath.doyourthing.signup_fragments.SignupFragment;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity implements SignupFragment.SignupInterface, LoginFragment.LoginInterface {
 
     private SignupFragment mSignupFragment;
     private LoginFragment mLoginFragment;
@@ -26,7 +27,51 @@ public class SignUpActivity extends AppCompatActivity {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fragment_container, mSignupFragment)
+                .replace(R.id.fragment_container, mSignupFragment, SIGNUP_FRAGMENT_TAG)
+                .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void wantToSignup() {
+        displaySignupFragment();
+    }
+
+    @Override
+    public void wantToLogin() {
+        displayLoginFragment();
+    }
+
+
+    private void displayLoginFragment(){
+        getSupportFragmentManager().popBackStack();
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, mLoginFragment, LOGIN_FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void displaySignupFragment(){
+        getSupportFragmentManager().popBackStack();
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, mSignupFragment, SIGNUP_FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Fragment fragment1 = getSupportFragmentManager().findFragmentByTag(SIGNUP_FRAGMENT_TAG);
+        Fragment fragment2 = getSupportFragmentManager().findFragmentByTag(LOGIN_FRAGMENT_TAG);
+
+        if(fragment1 == null && fragment2 == null){
+            finish();
+        }
     }
 }
