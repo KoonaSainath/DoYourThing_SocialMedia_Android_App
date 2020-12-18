@@ -21,6 +21,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.regex.Pattern;
 
@@ -118,6 +120,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener{
                 ProgressDialog dialog = new ProgressDialog(getActivity(), ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
                 dialog.setTitle("Sign up");
                 dialog.setMessage("Creating your account...");
+                dialog.setCancelable(false);
                 dialog.show();
 
                 mAuth.createUserWithEmailAndPassword(edtEmail.getText().toString() , edtPassword.getText().toString())
@@ -126,6 +129,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener{
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
                                     Toast.makeText(getActivity(), "Sign up successful. " + "\n  WELCOME " + edtUsername.getText().toString(), Toast.LENGTH_LONG).show();
+                                    saveUsernameToFirebase();
                                     startActivity(new Intent(getActivity(), MainActivity.class));
                                     getActivity().finish();
                                     dialog.dismiss();
@@ -149,5 +153,11 @@ public class SignupFragment extends Fragment implements View.OnClickListener{
         if (email == null)
             return false;
         return pat.matcher(email).matches();
+    }
+
+    private void saveUsernameToFirebase(){
+        String username = edtUsername.getText().toString();
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Username").setValue(username);
     }
 }

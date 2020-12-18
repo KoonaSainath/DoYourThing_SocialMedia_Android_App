@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_logout" android:title="Log out" app:showAsAction="always"/>
+    <item android:id="@+id/menu_logout" android:title="Log out" app:showAsAction="always" android:icon="@drawable/logout" android:orderInCategory="3"/>
+    <item android:id="@+id/menu_upload_post" android:title="Upload post" app:showAsAction="always" android:icon="@drawable/uploadpost"  android:orderInCategory="2"/>
+    <item android:id="@+id/menu_profile" android:title="Profile" app:showAsAction="always" android:icon="@drawable/ic_baseline_account_circle_24" android:orderInCategory="1"/>
 </menu>

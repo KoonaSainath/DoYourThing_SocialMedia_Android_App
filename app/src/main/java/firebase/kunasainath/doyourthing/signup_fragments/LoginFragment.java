@@ -125,6 +125,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                 ProgressDialog dialog = new ProgressDialog(getActivity(), ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
                 dialog.setTitle("Log in");
                 dialog.setMessage("Logging you in. Please wait...");
+                dialog.setCancelable(false);
                 dialog.show();
 
                 mAuth.signInWithEmailAndPassword(edtEmail.getText().toString(), edtPassword.getText().toString())

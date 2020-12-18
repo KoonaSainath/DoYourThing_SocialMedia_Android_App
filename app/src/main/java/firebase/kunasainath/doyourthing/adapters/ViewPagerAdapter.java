@@ -7,6 +7,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import firebase.kunasainath.doyourthing.viewpager_fragments.ChatsFragment;
+import firebase.kunasainath.doyourthing.viewpager_fragments.HomeFragment;
+import firebase.kunasainath.doyourthing.viewpager_fragments.PeopleFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
 
@@ -20,12 +22,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                ChatsFragment chatsFragment = ChatsFragment.newInstance();
-                return chatsFragment;
+                return HomeFragment.newInstance();
             case 1:
                 return ChatsFragment.newInstance();
             case 2:
-                return ChatsFragment.newInstance();
+                return PeopleFragment.newInstance();
         }
         return null;
     }
@@ -40,11 +41,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch(position){
             case 0:
-                return "Chats";
+                return "Home";
             case 1:
-                return "Users";
+                return "Chats";
             case 2:
-                return "Posts";
+                return "People";
         }
         return "";
     }

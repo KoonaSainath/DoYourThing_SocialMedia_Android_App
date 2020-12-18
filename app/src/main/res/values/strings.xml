@@ -10,4 +10,7 @@
     <string name="don_t_have_an_account_create_account">Don\'t have an account? Create account</string>
     <string name="log_in">Log In</string>
     <string name="enter_your_password">Enter your password</string>
+    <string name="favorites">Favorites</string>
+    <string name="about">About</string>
+    <string name="username">Username</string>
 </resources>
