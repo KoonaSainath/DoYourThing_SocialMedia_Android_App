@@ -83,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 animateTransition();
                 break;
             case R.id.menu_upload_post:
+                startActivity(new Intent(this, PostUploadActivity.class));
+                animateTransition();
                 break;
         }
         return true;
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 animateTransition();
                 break;
             case R.id.fab_post_upload:
+                startActivity(new Intent(this, PostUploadActivity.class));
+                animateTransition();
                 break;
             case R.id.fab_logout:
                 logout();

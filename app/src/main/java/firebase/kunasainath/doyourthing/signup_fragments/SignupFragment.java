@@ -158,6 +158,6 @@ public class SignupFragment extends Fragment implements View.OnClickListener{
     private void saveUsernameToFirebase(){
         String username = edtUsername.getText().toString();
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Username").setValue(username);
+        database.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Username").setValue(username);
     }
 }
