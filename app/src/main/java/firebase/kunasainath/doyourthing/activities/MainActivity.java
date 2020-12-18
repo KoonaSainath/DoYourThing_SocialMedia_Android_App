@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+    private FloatingActionButton fabMain, fabProfile, fabUploadPost, fabLogout;
 
     private ViewPagerAdapter mViewPagerAdapter;
 
@@ -43,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mTabLayout.setupWithViewPager(mViewPager);
+
+        fabMain = findViewById(R.id.fab_main);
+        fabProfile = findViewById(R.id.fab_profile);
+        fabUploadPost = findViewById(R.id.fab_post_upload);
+        fabLogout = findViewById(R.id.fab_logout);
 
 
     }
