@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -77,18 +77,20 @@ public class HomeFragment extends Fragment {
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Posts")
-                .addChildEventListener(new ChildEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                        String date, time, description, imageUrl, userId;
-                        date = snapshot.child("Date").getValue().toString();
-                        time = snapshot.child("Time").getValue().toString();
-                        description = snapshot.child("Description").getValue().toString();
-                        imageUrl = snapshot.child("ImageUrl").getValue().toString();
-                        userId = snapshot.child("UserId").getValue().toString();
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for(DataSnapshot data : snapshot.getChildren()){
+                            String date, time, description, imageUrl, userId;
+                            date = data.child("Date").getValue().toString();
+                            time = data.child("Time").getValue().toString();
+                            description = data.child("Description").getValue().toString();
+                            imageUrl = data.child("ImageUrl").getValue().toString();
+                            userId = data.child("UserId").getValue().toString();
 
-                        Post post = new Post(userId, date, time, description, imageUrl);
-                        posts.add(post);
+                            Post post = new Post(userId, date, time, description, imageUrl);
+                            posts.add(post);
+                        }
 
                         mPostAdapter = new PostAdapter(posts, getActivity());
                         recyclerHome.setAdapter(mPostAdapter);
@@ -99,25 +101,11 @@ public class HomeFragment extends Fragment {
                     }
 
                     @Override
-                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                    }
-
-                    @Override
                     public void onCancelled(@NonNull DatabaseError error) {
 
                     }
                 });
+
 
     }
 }
