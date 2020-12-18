@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +31,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
         mContext = context;
     }
 
+    public interface PostInterface{
+        public void profileImage(String userId);
+        public void postImage(String imageUrl);
+    }
+
+    private PostInterface mInterface;
+
     @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,6 +50,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+
+        mInterface = (PostInterface) mContext;
+
         Glide.with(mContext).load(posts.get(position).getImageUrl()).into(holder.getImgPost());
 
         holder.getTxtDate().setText(posts.get(position).getDate().toString());
@@ -54,10 +65,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String imageUrl = snapshot.child("ProfilePicUrl").getValue().toString();
+                        try {
+                            String imageUrl = snapshot.child("ProfilePicUrl").getValue().toString();
+                            Glide.with(mContext).load(imageUrl).into(holder.getImgUserProfilePic());
+                        }catch (Exception e){
+                            holder.getImgUserProfilePic().setImageResource(R.drawable.profile_pic_place_holder);
+                            holder.getImgUserProfilePic().setScaleType(ImageView.ScaleType.FIT_XY);
+                        }
+
                         String username = snapshot.child("Username").getValue().toString();
 
-                        Glide.with(mContext).load(imageUrl).into(holder.getImgUserProfilePic());
                         holder.getTxtUsername().setText(username);
                     }
 
@@ -66,10 +83,28 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
 
                     }
                 });
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.img_post:
+                        mInterface.postImage(posts.get(position).getImageUrl());
+                        break;
+                    case R.id.img_user_image:
+                        mInterface.profileImage(posts.get(position).getUserId());
+                        break;
+                }
+            }
+        };
+
+        holder.getImgUserProfilePic().setOnClickListener(listener);
+        holder.getImgPost().setOnClickListener(listener);
     }
 
     @Override
     public int getItemCount() {
         return posts.size();
     }
+
 }

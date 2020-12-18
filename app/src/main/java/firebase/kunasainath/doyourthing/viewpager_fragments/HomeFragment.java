@@ -51,8 +51,6 @@ public class HomeFragment extends Fragment {
 
         displayPosts();
 
-        mProgressBar.animate().alpha(0.0f).setDuration(5000).start();
-
         refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -95,6 +93,9 @@ public class HomeFragment extends Fragment {
                         mPostAdapter = new PostAdapter(posts, getActivity());
                         recyclerHome.setAdapter(mPostAdapter);
                         recyclerHome.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+                        mProgressBar.animate().alpha(0.0f).setDuration(5000).start();
+
                     }
 
                     @Override
@@ -117,5 +118,6 @@ public class HomeFragment extends Fragment {
 
                     }
                 });
+
     }
 }

@@ -13,8 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DoYourThing">
-        <activity android:name=".activities.PostUploadActivity" android:windowSoftInputMode="stateAlwaysHidden"></activity>
-        <activity android:name=".activities.ProfileActivity" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:name=".activities.FullScreenImageActivity" android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"></activity>
+        <activity
+            android:name=".activities.PostUploadActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activities.ProfileActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".activities.SignUpActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

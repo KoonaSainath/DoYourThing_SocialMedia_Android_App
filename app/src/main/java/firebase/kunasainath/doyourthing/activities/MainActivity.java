@@ -16,11 +16,16 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import firebase.kunasainath.doyourthing.R;
+import firebase.kunasainath.doyourthing.adapters.PostAdapter;
 import firebase.kunasainath.doyourthing.adapters.ViewPagerAdapter;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, PostAdapter.PostInterface {
 
     private FirebaseAuth mAuth;
     private Toolbar mToolbar;
@@ -132,4 +137,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void animateTransition(){
         overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
     }
+
+    @Override
+    public void profileImage(String userId) {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        try{
+                            try {
+                                String userImageUrl = snapshot.child("ProfilePicUrl").getValue().toString();
+                                Intent intent = new Intent(getApplicationContext(), FullScreenImageActivity.class);
+                                intent.putExtra("Image", userImageUrl);
+                                startActivity(intent);
+                                overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
+                            }catch (Exception e){
+                                startActivity(new Intent(getApplicationContext(), FullScreenImageActivity.class));
+                            }
+
+                        }catch (Exception e){
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void postImage(String imageUrl) {
+        Intent intent = new Intent(this, FullScreenImageActivity.class);
+        intent.putExtra("Image", imageUrl);
+        startActivity(intent);
+        overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
+    }
+
 }
