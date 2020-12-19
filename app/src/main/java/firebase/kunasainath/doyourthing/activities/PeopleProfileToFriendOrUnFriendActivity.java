@@ -153,7 +153,9 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(Boolean.parseBoolean(snapshot.child(userId).getValue().toString())){
+
+
+                        if(snapshot.child(userId).getValue() != null && Boolean.parseBoolean(snapshot.child(userId).getValue().toString())){
 
                             //ALREADY FRIEND
 

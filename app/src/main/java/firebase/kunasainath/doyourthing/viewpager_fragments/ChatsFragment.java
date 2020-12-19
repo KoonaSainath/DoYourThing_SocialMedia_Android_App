@@ -20,6 +20,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
@@ -91,9 +93,20 @@ public class ChatsFragment extends Fragment {
                             }
                         }
 
+                        Comparator<String> sorter = new Comparator<String>() {
+                            @Override
+                            public int compare(String a, String b) {
+                                return -1;
+                            }
+                        };
+
+                        Collections.sort(users, sorter);
+
                         mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
                         recyclerUsersChat.setAdapter(mUsersChatAdapter);
-                        recyclerUsersChat.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+                        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                        recyclerUsersChat.setLayoutManager(layoutManager);
 
                         progressUserChats.setVisibility(View.INVISIBLE);
 
