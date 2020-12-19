@@ -22,13 +22,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import firebase.kunasainath.doyourthing.R;
-import firebase.kunasainath.doyourthing.adapters.PeopleAdapter;
-import firebase.kunasainath.doyourthing.model_classes.User;
+import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 
 public class PeopleFragment extends Fragment {
     private RecyclerView recyclerPeople;
-    private ArrayList<User> users;
-    private PeopleAdapter mPeopleAdapter;
+    private ArrayList<String> users;
+    private UsersChatAdapter mUsersChatAdapter;
     private SwipeRefreshLayout refreshPeople;
     private ProgressBar progresPeople;
     public PeopleFragment() {
@@ -70,7 +69,9 @@ public class PeopleFragment extends Fragment {
     }
 
     private void showPeople(){
-        users = new ArrayList<User>();
+        users = new ArrayList<String>();
+
+        progresPeople.setVisibility(View.VISIBLE);
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
@@ -82,17 +83,15 @@ public class PeopleFragment extends Fragment {
 
                         for(DataSnapshot data : snapshot.getChildren()){
                             String username, userId;
-                            username = data.child("Username").getValue().toString();
                             userId = data.getKey().toString();
 
                             if(!userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                                User user = new User(username, userId);
-                                users.add(user);
+                                users.add(userId);
                             }
                         }
 
-                        mPeopleAdapter = new PeopleAdapter(users, getActivity());
-                        recyclerPeople.setAdapter(mPeopleAdapter);
+                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity());
+                        recyclerPeople.setAdapter(mUsersChatAdapter);
                         recyclerPeople.setLayoutManager(new LinearLayoutManager(getActivity()));
 
                         progresPeople.setVisibility(View.INVISIBLE);

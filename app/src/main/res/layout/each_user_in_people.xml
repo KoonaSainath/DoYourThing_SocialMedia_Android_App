@@ -31,7 +31,6 @@
         <TextView
             android:id="@+id/txt_people_username"
             android:layout_margin="8dp"
-            android:layout_toLeftOf="@id/img_friend_or_unfriend"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -39,15 +38,6 @@
             android:layout_centerInParent="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/not_liked"
-            android:padding="16dp"
-            android:id="@+id/img_friend_or_unfriend"/>
 
     </RelativeLayout>
 

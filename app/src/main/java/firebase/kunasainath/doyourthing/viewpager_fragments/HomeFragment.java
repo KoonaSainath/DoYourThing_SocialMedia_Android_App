@@ -75,6 +75,8 @@ public class HomeFragment extends Fragment {
     private void displayPosts(){
         posts = new ArrayList<Post>();
 
+        mProgressBar.setVisibility(View.VISIBLE);
+
         FirebaseDatabase.getInstance().getReference()
                 .child("Posts")
                 .addValueEventListener(new ValueEventListener() {
@@ -97,7 +99,7 @@ public class HomeFragment extends Fragment {
                         recyclerHome.setAdapter(mPostAdapter);
                         recyclerHome.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-                        mProgressBar.animate().alpha(0.0f).setDuration(2000).start();
+                        mProgressBar.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
