@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -31,6 +33,7 @@ public class HomeFragment extends Fragment {
     private ArrayList<Post> posts;
     private SwipeRefreshLayout refresh;
     private ProgressBar mProgressBar;
+    private TextView txtTitle;
 
     public HomeFragment() {
     }
@@ -48,6 +51,21 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        txtTitle.setText("Welcome " + snapshot.child("Username").getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
 
         displayPosts();
 
@@ -68,6 +86,7 @@ public class HomeFragment extends Fragment {
         recyclerHome = view.findViewById(R.id.recycler_home);
         refresh = view.findViewById(R.id.refresh_home);
         mProgressBar = view.findViewById(R.id.progress_home);
+        txtTitle = view.findViewById(R.id.txt_title_home);
         return view;
     }
 

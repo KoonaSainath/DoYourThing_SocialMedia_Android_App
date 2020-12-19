@@ -5,9 +5,22 @@
     android:layout_height="match_parent"
     tools:context=".viewpager_fragments.PeopleFragment">
 
+    <TextView
+        android:id="@+id/txt_title_people"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:text="View profile by clicking on a user"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_margin="2dp"
+        android:layout_alignParentTop="true"/>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/txt_title_people"
         android:id="@+id/refresh_people">
 
     <androidx.recyclerview.widget.RecyclerView

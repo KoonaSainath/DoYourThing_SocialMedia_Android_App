@@ -24,11 +24,24 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
     private ArrayList<String> users;
     private Context mContext;
+    private String parent;
 
-    public UsersChatAdapter(ArrayList<String> users, Context context){
+    public UsersChatAdapter(ArrayList<String> users, Context context, String parent){
         this.users = users;
         this.mContext = context;
+        this.parent = parent;
     }
+
+    public interface PeopleInterface{
+        public void showProfile(String userid);
+    }
+
+    public interface ChatInterface{
+        public void startChatRoom(String userid);
+    }
+
+    private PeopleInterface mPeopleInterface;
+    private ChatInterface mChatInterface;
 
     @NonNull
     @Override
@@ -41,6 +54,7 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull PeopleViewHolder holder, int position) {
+
         String userId = users.get(position);
 
         FirebaseDatabase.getInstance().getReference()
@@ -64,6 +78,19 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
                     }
                 });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(parent.equals("People")){
+                    mPeopleInterface = (PeopleInterface) mContext;
+                    mPeopleInterface.showProfile(userId);
+                }else if(parent.equals("Chat")){
+                    mChatInterface = (ChatInterface) mContext;
+                    mChatInterface.startChatRoom(userId);
+                }
+            }
+        });
     }
 
     @Override

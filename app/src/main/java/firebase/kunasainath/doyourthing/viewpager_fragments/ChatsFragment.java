@@ -91,7 +91,7 @@ public class ChatsFragment extends Fragment {
                             }
                         }
 
-                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity());
+                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
                         recyclerUsersChat.setAdapter(mUsersChatAdapter);
                         recyclerUsersChat.setLayoutManager(new LinearLayoutManager(getActivity()));
 

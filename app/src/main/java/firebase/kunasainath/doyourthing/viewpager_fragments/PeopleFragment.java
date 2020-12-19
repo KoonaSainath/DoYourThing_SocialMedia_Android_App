@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 
-public class PeopleFragment extends Fragment {
+public class PeopleFragment extends Fragment{
     private RecyclerView recyclerPeople;
     private ArrayList<String> users;
     private UsersChatAdapter mUsersChatAdapter;
@@ -90,7 +90,7 @@ public class PeopleFragment extends Fragment {
                             }
                         }
 
-                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity());
+                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "People");
                         recyclerPeople.setAdapter(mUsersChatAdapter);
                         recyclerPeople.setLayoutManager(new LinearLayoutManager(getActivity()));
 

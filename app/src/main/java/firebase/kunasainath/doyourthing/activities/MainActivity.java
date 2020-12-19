@@ -23,9 +23,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.PostAdapter;
+import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 import firebase.kunasainath.doyourthing.adapters.ViewPagerAdapter;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, PostAdapter.PostInterface {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, PostAdapter.PostInterface, UsersChatAdapter.ChatInterface, UsersChatAdapter.PeopleInterface {
 
     private FirebaseAuth mAuth;
     private Toolbar mToolbar;
@@ -177,4 +178,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
     }
 
+    @Override
+    public void showProfile(String userid) {
+        Intent intent = new Intent(this, PeopleProfileToFriendOrUnFriendActivity.class);
+        intent.putExtra("UserId", userid);
+        startActivity(intent);
+    }
+
+    @Override
+    public void startChatRoom(String userid) {
+        Intent intent = new Intent(this, ChatRoomActivity.class);
+        intent.putExtra("UserId", userid);
+        startActivity(intent);
+    }
 }

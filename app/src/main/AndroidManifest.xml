@@ -13,7 +13,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DoYourThing">
-        <activity android:name=".activities.FullScreenImageActivity" android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"></activity>
+        <activity android:name=".activities.ChatRoomActivity"></activity>
+        <activity android:name=".activities.PeopleProfileToFriendOrUnFriendActivity" />
+        <activity
+            android:name=".activities.FullScreenImageActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity
             android:name=".activities.PostUploadActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
