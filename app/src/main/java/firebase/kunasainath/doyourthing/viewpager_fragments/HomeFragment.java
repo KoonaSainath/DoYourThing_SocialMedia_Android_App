@@ -80,6 +80,7 @@ public class HomeFragment extends Fragment {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        posts.clear();
                         for(DataSnapshot data : snapshot.getChildren()){
                             String date, time, description, imageUrl, userId;
                             date = data.child("Date").getValue().toString();
@@ -96,8 +97,7 @@ public class HomeFragment extends Fragment {
                         recyclerHome.setAdapter(mPostAdapter);
                         recyclerHome.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-                        mProgressBar.animate().alpha(0.0f).setDuration(5000).start();
-
+                        mProgressBar.animate().alpha(0.0f).setDuration(2000).start();
                     }
 
                     @Override

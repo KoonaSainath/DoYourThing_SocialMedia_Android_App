@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -53,6 +54,7 @@ public class PeopleFragment extends Fragment {
             @Override
             public void onRefresh() {
                 showPeople();
+                refreshPeople.setRefreshing(false);
             }
         });
     }
@@ -75,24 +77,25 @@ public class PeopleFragment extends Fragment {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        users.clear();
+
                         for(DataSnapshot data : snapshot.getChildren()){
                             String username, userId;
                             username = data.child("Username").getValue().toString();
                             userId = data.getKey().toString();
 
-                            User user = new User(username, userId);
-                            users.add(user);
+                            if(!userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                User user = new User(username, userId);
+                                users.add(user);
+                            }
                         }
 
                         mPeopleAdapter = new PeopleAdapter(users, getActivity());
                         recyclerPeople.setAdapter(mPeopleAdapter);
                         recyclerPeople.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-                        progresPeople.animate().alpha(0.0f).setDuration(5000).start();
-
-                        if(refreshPeople.isRefreshing()){
-                            refreshPeople.setRefreshing(false);
-                        }
+                        progresPeople.setVisibility(View.INVISIBLE);
 
                     }
 
