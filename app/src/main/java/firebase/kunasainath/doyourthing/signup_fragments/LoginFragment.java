@@ -3,9 +3,7 @@ package firebase.kunasainath.doyourthing.signup_fragments;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -65,16 +63,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         mInterface = (LoginInterface) getActivity();
         txtCanLogin.setOnClickListener(this);
         btnLogin.setOnClickListener(this);
-
-        edtPassword.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == MotionEvent.ACTION_DOWN){
-                    onClick(btnLogin);
-                }
-                return true;
-            }
-        });
     }
 
     @Override
@@ -140,6 +128,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                                 }else{
                                     Toast.makeText(getActivity(), task.getException().toString() , Toast.LENGTH_LONG).show();
                                     dialog.dismiss();
+                                    edtPassword.setText("");
                                 }
                             }
                         });

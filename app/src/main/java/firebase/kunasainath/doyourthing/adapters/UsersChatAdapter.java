@@ -63,11 +63,12 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        holder.getTxtPeopleUsername().setText(snapshot.child("Username").getValue().toString());
+
                         if(snapshot.hasChild("ProfilePicUrl")){
                             Glide.with(mContext).load(snapshot.child("ProfilePicUrl").getValue().toString()).into(holder.getImgPeopleProfilePic());
                             holder.getImgPeopleProfilePic().setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-                            holder.getTxtPeopleUsername().setText(snapshot.child("Username").getValue().toString());
                         }else{
                             holder.getImgPeopleProfilePic().setImageResource(R.drawable.profile_pic_place_holder);
                         }

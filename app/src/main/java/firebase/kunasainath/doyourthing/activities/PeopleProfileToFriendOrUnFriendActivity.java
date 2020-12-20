@@ -79,13 +79,21 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
                         txtName.setText(snapshot.child("Username").getValue().toString());
 
                         if(snapshot.hasChild("About")){
-                            txtAbout.setText(snapshot.child("About").getValue().toString());
+                            if(snapshot.child("About").getValue().toString().length() == 0){
+                                txtAbout.setText("No About");
+                            }else {
+                                txtAbout.setText(snapshot.child("About").getValue().toString());
+                            }
                         }else{
                             txtAbout.setText("No About");
                         }
 
                         if(snapshot.hasChild("Favorites")){
-                            txtFav.setText(snapshot.child("Favorites").getValue().toString());
+                            if(snapshot.child("Favorites").getValue().toString().length() == 0){
+                                txtFav.setText("No favorites");
+                            }else {
+                                txtFav.setText(snapshot.child("Favorites").getValue().toString());
+                            }
                         }else{
                             txtFav.setText("No favorites");
                         }
@@ -111,13 +119,14 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                try {
-                                    String imageUrl = snapshot.child("ImageUrl").getValue().toString();
+
+                                if(snapshot.hasChild("ProfilePicUrl")){
+                                    String imageUrl = snapshot.child("ProfilePicUrl").getValue().toString();
                                     Intent intent = new Intent(PeopleProfileToFriendOrUnFriendActivity.this, FullScreenImageActivity.class);
                                     intent.putExtra("Image", imageUrl);
                                     startActivity(intent);
                                     overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
-                                }catch (Exception e){
+                                }else{
                                     Intent intent = new Intent(PeopleProfileToFriendOrUnFriendActivity.this, FullScreenImageActivity.class);
                                     startActivity(intent);
                                     overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
