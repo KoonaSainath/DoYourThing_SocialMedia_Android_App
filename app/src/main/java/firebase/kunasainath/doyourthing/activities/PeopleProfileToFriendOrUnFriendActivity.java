@@ -175,6 +175,13 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
                                     .child(userId)
                                     .setValue(false);
 
+                            FirebaseDatabase.getInstance().getReference()
+                                    .child("Users")
+                                    .child(userId)
+                                    .child("Friends")
+                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .setValue(false);
+
                             imgFriend.setImageResource(R.drawable.not_liked);
                             txtStatus.setText("This person is not your friend");
                             txtStatus.setTextColor(getColor(R.color.red));
@@ -194,6 +201,13 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .child("Friends")
                                     .child(userId)
+                                    .setValue(true);
+
+                            FirebaseDatabase.getInstance().getReference()
+                                    .child("Users")
+                                    .child(userId)
+                                    .child("Friends")
+                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .setValue(true);
 
                             imgFriend.setImageResource(R.drawable.liked);

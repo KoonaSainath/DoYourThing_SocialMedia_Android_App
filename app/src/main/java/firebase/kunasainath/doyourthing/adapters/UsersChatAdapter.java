@@ -1,12 +1,15 @@
 package firebase.kunasainath.doyourthing.adapters;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -61,8 +64,16 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
                 .child("Users")
                 .child(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+
+                        if(snapshot.child("status").getValue().equals("online")){
+                            holder.getBtnOnlineOffline().setBackground(mContext.getDrawable(R.drawable.btn_online));
+                        }else{
+                            holder.getBtnOnlineOffline().setBackground(mContext.getDrawable(R.drawable.btn_offline));
+                        }
 
                         holder.getTxtPeopleUsername().setText(snapshot.child("Username").getValue().toString());
 

@@ -129,7 +129,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void logout(){
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
+
         mAuth.signOut();
+
         startActivity(new Intent(this, SignUpActivity.class));
         Toast.makeText(this, "Log out successful", Toast.LENGTH_SHORT).show();
         finish();

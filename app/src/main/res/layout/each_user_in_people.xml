@@ -39,6 +39,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
+        <Button
+            android:id="@+id/btn_online_offline"
+            android:layout_height="15dp"
+            android:layout_width="15dp"
+            android:background="@drawable/btn_offline"
+            android:layout_alignBottom="@id/card_profile_pic"
+            android:layout_alignRight="@id/card_profile_pic"
+            />
+
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>
