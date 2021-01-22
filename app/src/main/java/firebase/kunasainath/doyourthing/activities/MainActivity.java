@@ -191,4 +191,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("UserId", userid);
         startActivity(intent);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
+    }
 }

@@ -37,6 +37,8 @@ public class SignUpActivity extends AppCompatActivity implements SignupFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+
+
         mAuth = FirebaseAuth.getInstance();
 
         mSignupFragment = SignupFragment.newInstance();

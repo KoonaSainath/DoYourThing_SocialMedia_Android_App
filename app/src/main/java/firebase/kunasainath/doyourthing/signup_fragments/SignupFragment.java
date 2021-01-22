@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import firebase.kunasainath.doyourthing.R;
@@ -156,8 +157,14 @@ public class SignupFragment extends Fragment implements View.OnClickListener{
     }
 
     private void saveUsernameToFirebase(){
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("status", "online");
+
         String username = edtUsername.getText().toString();
+        data.put("Username", username);
+
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        database.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Username").setValue(username);
+        database.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).updateChildren(data);
     }
 }
