@@ -19,14 +19,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 import firebase.kunasainath.doyourthing.R;
+import firebase.kunasainath.doyourthing.model_classes.User;
 
 public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity implements View.OnClickListener{
 
     private ImageView imgPic;
     private TextView txtName, txtAbout, txtFav, txtStatus;
     private ImageView imgFriend;
-    private String userId;
+    private User user;
 
 
     @Override
@@ -40,21 +43,26 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
         imgFriend = findViewById(R.id.img_friend);
         txtStatus = findViewById(R.id.txt_friend_status);
 
-        userId = getIntent().getStringExtra("UserId");
+        user = (User) getIntent().getSerializableExtra("User");
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("Friends")
+                .child(user.getId())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         try {
-                            if (Boolean.parseBoolean(snapshot.child(userId).getValue().toString())) {
+                            if (Boolean.parseBoolean(snapshot.child("IsFriend").getValue().toString())) {
                                 imgFriend.setImageResource(R.drawable.liked);
                                 txtStatus.setText("This person is your friend");
                                 txtStatus.setTextColor(getColor(R.color.green));
+                            }else{
+                                imgFriend.setImageResource(R.drawable.not_liked);
+                                txtStatus.setText("This person is not your friend");
+                                txtStatus.setTextColor(getColor(R.color.red));
                             }
                         }catch (Exception e){}
                     }
@@ -67,7 +75,7 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
-                .child(userId)
+                .child(user.getId())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -115,7 +123,7 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
             case R.id.img_profile_pic:
                 FirebaseDatabase.getInstance().getReference()
                         .child("Users")
-                        .child(userId)
+                        .child(user.getId())
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -164,64 +172,118 @@ public class PeopleProfileToFriendOrUnFriendActivity extends AppCompatActivity i
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
 
 
-                        if(snapshot.child(userId).getValue() != null && Boolean.parseBoolean(snapshot.child(userId).getValue().toString())){
+                        if(snapshot.child(user.getId()).getValue() != null && Boolean.parseBoolean(snapshot.child(user.getId()).child("IsFriend").getValue().toString())){
 
                             //ALREADY FRIEND
 
+                            HashMap<String, Object> data1 = new HashMap<>();
+                            data1.put("UserId", user.getId());
+                            data1.put("Username", user.getName());
+                            data1.put("IsFriend", false);
+
                             FirebaseDatabase.getInstance().getReference()
                                     .child("Users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .child("Friends")
-                                    .child(userId)
+                                    .child(user.getId())
+                                    .child("IsFriend")
                                     .setValue(false);
 
-                            FirebaseDatabase.getInstance().getReference()
-                                    .child("Users")
-                                    .child(userId)
-                                    .child("Friends")
-                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .setValue(false);
+                            HashMap<String, Object> data2 = new HashMap<>();
+                            data2.put("UserId", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-                            imgFriend.setImageResource(R.drawable.not_liked);
-                            txtStatus.setText("This person is not your friend");
-                            txtStatus.setTextColor(getColor(R.color.red));
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            HashMap<String, Object> data = (HashMap) snapshot.getValue();
+                                            data2.put("Username", data.get("Username"));
 
-                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Removed user from your friends list", Snackbar.LENGTH_INDEFINITE);
-                            snackbar.show();
-                            snackbar.setAction("Ok", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    snackbar.dismiss();
-                                }
-                            });
+                                            data2.put("IsFriend", false);
+
+                                            FirebaseDatabase.getInstance().getReference()
+                                                    .child("Users")
+                                                    .child(user.getId())
+                                                    .child("Friends")
+                                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .child("IsFriend")
+                                                    .setValue(false);
+
+                                            imgFriend.setImageResource(R.drawable.not_liked);
+                                            txtStatus.setText("This person is not your friend");
+                                            txtStatus.setTextColor(getColor(R.color.red));
+
+                                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Removed user from your friends list", Snackbar.LENGTH_INDEFINITE);
+                                            snackbar.show();
+                                            snackbar.setAction("Ok", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    snackbar.dismiss();
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+
+
 
                         }else{
+
+                            HashMap<String, Object> data1 = new HashMap<>();
+                            data1.put("UserId", user.getId());
+                            data1.put("Username", user.getName());
+                            data1.put("IsFriend", true);
+
                             FirebaseDatabase.getInstance().getReference()
                                     .child("Users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .child("Friends")
-                                    .child(userId)
-                                    .setValue(true);
+                                    .child(user.getId())
+                                    .updateChildren(data1);
 
-                            FirebaseDatabase.getInstance().getReference()
-                                    .child("Users")
-                                    .child(userId)
-                                    .child("Friends")
-                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .setValue(true);
 
-                            imgFriend.setImageResource(R.drawable.liked);
-                            txtStatus.setText("This person is your friend");
-                            txtStatus.setTextColor(getColor(R.color.green));
+                            HashMap<String, Object> data2 = new HashMap<>();
+                            data2.put("UserId", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Added user to your friends list", Snackbar.LENGTH_INDEFINITE);
-                            snackbar.show();
-                            snackbar.setAction("Ok", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    snackbar.dismiss();
-                                }
-                            });
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            HashMap<String, Object> data = (HashMap) snapshot.getValue();
+                                            data2.put("Username", data.get("Username"));
+                                            data2.put("IsFriend", true);
+
+                                            FirebaseDatabase.getInstance().getReference()
+                                                    .child("Users")
+                                                    .child(user.getId())
+                                                    .child("Friends")
+                                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .updateChildren(data2);
+
+                                            imgFriend.setImageResource(R.drawable.liked);
+                                            txtStatus.setText("This person is your friend");
+                                            txtStatus.setTextColor(getColor(R.color.green));
+
+                                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Added user to your friends list", Snackbar.LENGTH_INDEFINITE);
+                                            snackbar.show();
+                                            snackbar.setAction("Ok", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    snackbar.dismiss();
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+
                         }
                     }
 

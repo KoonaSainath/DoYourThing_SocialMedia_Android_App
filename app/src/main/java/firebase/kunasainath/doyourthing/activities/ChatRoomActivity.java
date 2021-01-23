@@ -24,6 +24,7 @@ import java.util.HashMap;
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.ChatRoomAdapter;
 import firebase.kunasainath.doyourthing.model_classes.Message;
+import firebase.kunasainath.doyourthing.model_classes.User;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
@@ -50,7 +51,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         showAllPreviousMessages();
 
-        receiverId = getIntent().getStringExtra("UserId");
+        User user = (User) getIntent().getSerializableExtra("User");
+        receiverId = user.getId();
         senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         FirebaseDatabase.getInstance().getReference()

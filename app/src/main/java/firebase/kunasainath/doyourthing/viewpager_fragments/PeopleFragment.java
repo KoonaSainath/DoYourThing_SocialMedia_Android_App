@@ -22,13 +22,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
+import firebase.kunasainath.doyourthing.model_classes.User;
 
 public class PeopleFragment extends Fragment{
     private RecyclerView recyclerPeople;
-    private ArrayList<String> users;
+    private ArrayList<User> users;
     private UsersChatAdapter mUsersChatAdapter;
     private SwipeRefreshLayout refreshPeople;
     private ProgressBar progresPeople;
@@ -71,7 +73,7 @@ public class PeopleFragment extends Fragment{
     }
 
     private void showPeople(){
-        users = new ArrayList<String>();
+        users = new ArrayList<User>();
 
         progresPeople.setVisibility(View.VISIBLE);
 
@@ -85,16 +87,22 @@ public class PeopleFragment extends Fragment{
 
                         for(DataSnapshot data : snapshot.getChildren()){
                             String username, userId;
-                            userId = data.getKey().toString();
+                            userId = data.getKey();
+
+                            HashMap<String, Object> userdata = (HashMap) data.getValue();
+
+                            username = userdata.get("Username").toString();
+
+                            User user = new User(userId, username);
 
                             if(!userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                                users.add(userId);
+                                users.add(user);
                             }
                         }
 
-                        Comparator<String> sorter = new Comparator<String>() {
+                        Comparator<User> sorter = new Comparator<User>() {
                             @Override
-                            public int compare(String a, String b) {
+                            public int compare(User a, User b) {
                                 return -1;
                             }
                         };

@@ -28,11 +28,12 @@ import java.util.Comparator;
 
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
+import firebase.kunasainath.doyourthing.model_classes.User;
 
 public class ChatsFragment extends Fragment {
 
     private RecyclerView recyclerUsersChat;
-    private ArrayList<String> users;
+    private ArrayList<User> users;
     private UsersChatAdapter mUsersChatAdapter;
     private SwipeRefreshLayout refreshUserChats;
     private ProgressBar progressUserChats;
@@ -93,7 +94,7 @@ public class ChatsFragment extends Fragment {
     }
 
     private void showUserChats(){
-        users = new ArrayList<String>();
+        users = new ArrayList<User>();
 
         progressUserChats.setVisibility(View.VISIBLE);
 
@@ -110,15 +111,19 @@ public class ChatsFragment extends Fragment {
                             users.clear();
 
                             for (DataSnapshot data : snapshot.getChildren()) {
-                                if (Boolean.parseBoolean(data.getValue().toString())) {
-                                    String userId = data.getKey().toString();
-                                    users.add(userId);
+                                if (Boolean.parseBoolean(data.child("IsFriend").getValue().toString())) {
+                                    String userId = data.child("UserId").getValue().toString();
+                                    String username = data.child("Username").getValue().toString();
+
+                                    User user = new User(userId, username);
+
+                                    users.add(user);
                                 }
                             }
 
-                            Comparator<String> sorter = new Comparator<String>() {
+                            Comparator<User> sorter = new Comparator<User>() {
                                 @Override
-                                public int compare(String a, String b) {
+                                public int compare(User a, User b) {
                                     return -1;
                                 }
                             };

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -21,26 +20,27 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import firebase.kunasainath.doyourthing.R;
+import firebase.kunasainath.doyourthing.model_classes.User;
 import firebase.kunasainath.doyourthing.viewholders.PeopleViewHolder;
 
 public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
-    private ArrayList<String> users;
+    private ArrayList<User> users;
     private Context mContext;
     private String parent;
 
-    public UsersChatAdapter(ArrayList<String> users, Context context, String parent){
+    public UsersChatAdapter(ArrayList<User> users, Context context, String parent){
         this.users = users;
         this.mContext = context;
         this.parent = parent;
     }
 
     public interface PeopleInterface{
-        public void showProfile(String userid);
+        public void showProfile(User user);
     }
 
     public interface ChatInterface{
-        public void startChatRoom(String userid);
+        public void startChatRoom(User user);
     }
 
     private PeopleInterface mPeopleInterface;
@@ -58,11 +58,11 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull PeopleViewHolder holder, int position) {
 
-        String userId = users.get(position);
+        User user = users.get(position);
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
-                .child(userId)
+                .child(user.getId())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                     @Override
@@ -96,10 +96,10 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
             public void onClick(View v) {
                 if(parent.equals("People")){
                     mPeopleInterface = (PeopleInterface) mContext;
-                    mPeopleInterface.showProfile(userId);
+                    mPeopleInterface.showProfile(user);
                 }else if(parent.equals("Chat")){
                     mChatInterface = (ChatInterface) mContext;
-                    mChatInterface.startChatRoom(userId);
+                    mChatInterface.startChatRoom(user);
                 }
             }
         });

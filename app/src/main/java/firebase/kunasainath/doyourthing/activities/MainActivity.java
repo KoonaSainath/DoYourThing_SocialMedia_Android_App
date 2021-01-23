@@ -1,14 +1,16 @@
 package firebase.kunasainath.doyourthing.activities;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
@@ -25,6 +27,7 @@ import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.PostAdapter;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 import firebase.kunasainath.doyourthing.adapters.ViewPagerAdapter;
+import firebase.kunasainath.doyourthing.model_classes.User;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, PostAdapter.PostInterface, UsersChatAdapter.ChatInterface, UsersChatAdapter.PeopleInterface {
 
@@ -128,14 +131,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void logout(){
-        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
+    private void logout() {
 
-        mAuth.signOut();
+        AlertDialog.Builder alert = new AlertDialog.Builder(this, ProgressDialog.THEME_HOLO_DARK);
+        alert.setTitle("Logout");
+        alert.setMessage("Are you sure to logout?");
+        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
 
-        startActivity(new Intent(this, SignUpActivity.class));
-        Toast.makeText(this, "Log out successful", Toast.LENGTH_SHORT).show();
-        finish();
+                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+                intent.putExtra("CameFrom", MainActivity.class.toString());
+                startActivity(intent);
+
+                finish();
+            }
+        });
+
+        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alert.setCancelable(false);
+        alert.create().show();
+
     }
 
     public void animateTransition(){
@@ -182,16 +205,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void showProfile(String userid) {
+    public void showProfile(User user) {
         Intent intent = new Intent(this, PeopleProfileToFriendOrUnFriendActivity.class);
-        intent.putExtra("UserId", userid);
+        intent.putExtra("User", user);
         startActivity(intent);
     }
 
     @Override
-    public void startChatRoom(String userid) {
+    public void startChatRoom(User user) {
         Intent intent = new Intent(this, ChatRoomActivity.class);
-        intent.putExtra("UserId", userid);
+        intent.putExtra("User", user);
         startActivity(intent);
     }
 
