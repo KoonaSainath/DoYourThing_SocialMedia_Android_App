@@ -1,9 +1,12 @@
 package firebase.kunasainath.doyourthing.viewpager_fragments;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -33,6 +36,7 @@ public class ChatsFragment extends Fragment {
     private UsersChatAdapter mUsersChatAdapter;
     private SwipeRefreshLayout refreshUserChats;
     private ProgressBar progressUserChats;
+    private EditText edtSearch;
 
     public ChatsFragment() {
     }
@@ -59,6 +63,22 @@ public class ChatsFragment extends Fragment {
                 refreshUserChats.setRefreshing(false);
             }
         });
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -68,6 +88,7 @@ public class ChatsFragment extends Fragment {
         recyclerUsersChat = view.findViewById(R.id.recycler_users_in_chat);
         refreshUserChats = view.findViewById(R.id.refresh_chats);
         progressUserChats = view.findViewById(R.id.progress_chat);
+        edtSearch = view.findViewById(R.id.edt_search);
         return view;
     }
 
@@ -76,46 +97,51 @@ public class ChatsFragment extends Fragment {
 
         progressUserChats.setVisibility(View.VISIBLE);
 
-        FirebaseDatabase.getInstance().getReference()
-                .child("Users")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child("Friends")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+        if(edtSearch.getText().toString().equals("")) {
 
-                        users.clear();
+            FirebaseDatabase.getInstance().getReference()
+                    .child("Users")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .child("Friends")
+                    .addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        for(DataSnapshot data : snapshot.getChildren()){
-                            if(Boolean.parseBoolean(data.getValue().toString())){
-                                String userId = data.getKey().toString();
-                                users.add(userId);
+                            users.clear();
+
+                            for (DataSnapshot data : snapshot.getChildren()) {
+                                if (Boolean.parseBoolean(data.getValue().toString())) {
+                                    String userId = data.getKey().toString();
+                                    users.add(userId);
+                                }
                             }
+
+                            Comparator<String> sorter = new Comparator<String>() {
+                                @Override
+                                public int compare(String a, String b) {
+                                    return -1;
+                                }
+                            };
+
+                            Collections.sort(users, sorter);
+
+                            mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
+                            recyclerUsersChat.setAdapter(mUsersChatAdapter);
+
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                            recyclerUsersChat.setLayoutManager(layoutManager);
+
+                            progressUserChats.setVisibility(View.INVISIBLE);
+
                         }
 
-                        Comparator<String> sorter = new Comparator<String>() {
-                            @Override
-                            public int compare(String a, String b) {
-                                return -1;
-                            }
-                        };
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                        Collections.sort(users, sorter);
-
-                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
-                        recyclerUsersChat.setAdapter(mUsersChatAdapter);
-
-                        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-                        recyclerUsersChat.setLayoutManager(layoutManager);
-
-                        progressUserChats.setVisibility(View.INVISIBLE);
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+                        }
+                    });
+        }else{
+            progressUserChats.setVisibility(View.INVISIBLE);
+        }
     }
 }
