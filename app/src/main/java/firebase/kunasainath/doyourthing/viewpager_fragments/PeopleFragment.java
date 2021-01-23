@@ -1,9 +1,12 @@
 package firebase.kunasainath.doyourthing.viewpager_fragments;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -17,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -34,6 +38,7 @@ public class PeopleFragment extends Fragment{
     private UsersChatAdapter mUsersChatAdapter;
     private SwipeRefreshLayout refreshPeople;
     private ProgressBar progresPeople;
+    private EditText edtSearch;
     public PeopleFragment() {
     }
 
@@ -60,6 +65,24 @@ public class PeopleFragment extends Fragment{
                 refreshPeople.setRefreshing(false);
             }
         });
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = s.toString();
+                search(text);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -69,6 +92,7 @@ public class PeopleFragment extends Fragment{
         recyclerPeople = view.findViewById(R.id.recycler_people);
         refreshPeople = view.findViewById(R.id.refresh_people);
         progresPeople = view.findViewById(R.id.progress_people);
+        edtSearch = view.findViewById(R.id.edt_search);
         return view;
     }
 
@@ -77,53 +101,89 @@ public class PeopleFragment extends Fragment{
 
         progresPeople.setVisibility(View.VISIBLE);
 
-        FirebaseDatabase.getInstance().getReference()
-                .child("Users")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+        if(edtSearch.getText().toString().equals("")) {
 
-                        users.clear();
+            FirebaseDatabase.getInstance().getReference()
+                    .child("Users")
+                    .addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        for(DataSnapshot data : snapshot.getChildren()){
-                            String username, userId;
-                            userId = data.getKey();
+                            users.clear();
 
-                            HashMap<String, Object> userdata = (HashMap) data.getValue();
+                            for (DataSnapshot data : snapshot.getChildren()) {
+                                String username, userId;
+                                userId = data.getKey();
 
-                            username = userdata.get("Username").toString();
+                                HashMap<String, Object> userdata = (HashMap) data.getValue();
 
-                            User user = new User(userId, username);
+                                username = userdata.get("Username").toString();
 
-                            if(!userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                                users.add(user);
+                                User user = new User(userId, username);
+
+                                if (!userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                    users.add(user);
+                                }
                             }
+
+                            Comparator<User> sorter = new Comparator<User>() {
+                                @Override
+                                public int compare(User a, User b) {
+                                    return -1;
+                                }
+                            };
+
+                            Collections.sort(users, sorter);
+
+                            mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "People");
+                            recyclerPeople.setAdapter(mUsersChatAdapter);
+
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+
+                            recyclerPeople.setLayoutManager(layoutManager);
+
+                            progresPeople.setVisibility(View.INVISIBLE);
+
                         }
 
-                        Comparator<User> sorter = new Comparator<User>() {
-                            @Override
-                            public int compare(User a, User b) {
-                                return -1;
-                            }
-                        };
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                        Collections.sort(users, sorter);
+                        }
+                    });
+        }
+    }
 
-                        mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "People");
-                        recyclerPeople.setAdapter(mUsersChatAdapter);
+    public void search(String text){
+        Query query = FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .orderByChild("Username")
+                .startAt(text)
+                .endAt(text + "\uf8ff");
 
-                        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        recyclerPeople.setLayoutManager(layoutManager);
+                users.clear();
+                for(DataSnapshot data : snapshot.getChildren()){
+                    String username = data.child("Username").getValue().toString();
+                    String userid = data.getKey();
+                    User user = new User(userid, username);
 
-                        progresPeople.setVisibility(View.INVISIBLE);
-
+                    if(!userid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        users.add(user);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "People");
+                recyclerPeople.setAdapter(mUsersChatAdapter);
+            }
 
-                    }
-                });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }

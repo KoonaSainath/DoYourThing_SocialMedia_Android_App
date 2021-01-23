@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -77,7 +78,8 @@ public class ChatsFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                String searchText = s.toString();
+                updateChats(searchText);
             }
         });
     }
@@ -148,5 +150,40 @@ public class ChatsFragment extends Fragment {
         }else{
             progressUserChats.setVisibility(View.INVISIBLE);
         }
+    }
+    public void updateChats(String searchText){
+        users.clear();
+        Query query = FirebaseDatabase.getInstance().getReference().
+                child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("Friends")
+                .orderByChild("Username")
+                .startAt(searchText)
+                .endAt(searchText + "\uf8ff");
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot data : snapshot.getChildren()){
+                    String id = data.child("UserId").getValue().toString();
+                    String name = data.child("Username").getValue().toString();
+                    User user = new User(id, name);
+                    users.add(user);
+                }
+
+                mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
+                recyclerUsersChat.setAdapter(mUsersChatAdapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+
+
     }
 }

@@ -5,28 +5,33 @@
     android:layout_height="match_parent"
     tools:context=".viewpager_fragments.PeopleFragment">
 
-    <TextView
-        android:id="@+id/txt_title_people"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:text="View profile by clicking on a user"
-        android:gravity="center"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:layout_margin="2dp"
-        android:layout_alignParentTop="true"/>
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/txt_title_people"
         android:id="@+id/refresh_people">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recycler_people"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/edt_search"
+                android:hint="Search a user"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:background="@drawable/edittext_style"
+                android:layout_margin="2dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:layout_above="@id/refresh_chats"
+                android:padding="10dp"
+                />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycler_people"/>
+        </LinearLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     
