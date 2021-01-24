@@ -42,8 +42,23 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position) {
+
+
         String message = messages.get(position).getMessage();
+        String dateTime = messages.get(position).getDateTime();
+        String seenOrNot = messages.get(position).getSeenOrDelivered();
+
         holder.getTxtMessage().setText(message);
+
+        holder.getTxtDateTime().setText(dateTime);
+
+
+        if(seenOrNot.equals("Seen")){
+            holder.getTxtSeenOrNot().setText("seen");
+        }else{
+            holder.getTxtSeenOrNot().setText("delivered");
+        }
+
     }
 
     @Override

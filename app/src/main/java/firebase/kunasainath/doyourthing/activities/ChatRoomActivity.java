@@ -15,10 +15,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import firebase.kunasainath.doyourthing.R;
@@ -38,10 +42,15 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private ProgressBar progressChat;
 
+    private ValueEventListener mValueEventListener;
+    private DatabaseReference mReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
+
+        mReference = FirebaseDatabase.getInstance().getReference().child("Chats");
 
         edtMessage = findViewById(R.id.edt_message);
         btnSend = findViewById(R.id.btn_send_message);
@@ -82,6 +91,9 @@ public class ChatRoomActivity extends AppCompatActivity {
 
             }
         });
+
+        seenTheMessage(senderId);
+
     }
 
     private void showAllPreviousMessages(){
@@ -94,13 +106,15 @@ public class ChatRoomActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         messages.clear();
                         for(DataSnapshot data : snapshot.getChildren()){
-                            String sender, receiver, message;
+                            String sender, receiver, message, seenOrNot, dateTime;
                             sender = data.child("Sender").getValue().toString();
                             receiver = data.child("Receiver").getValue().toString();
                             message = data.child("Message").getValue().toString();
+                            seenOrNot = data.child("Seen").getValue().toString();
+                            dateTime = data.child("Date and time").getValue().toString();
 
                             if( (sender.equals(senderId) && receiver.equals(receiverId)) || (sender.equals(receiverId) && receiver.equals(senderId)) ){
-                                Message msg = new Message(sender, receiver, message);
+                                Message msg = new Message(sender, receiver, message, dateTime, seenOrNot);
                                 messages.add(msg);
                             }
                         }
@@ -129,29 +143,70 @@ public class ChatRoomActivity extends AppCompatActivity {
         String msgToSend = edtMessage.getText().toString();
         edtMessage.setText("");
 
+        String dateTime, seenOrNot = "sent";
+
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date currentDate = new Date();
+
+        dateTime = dateFormat.format(currentDate);
+
+
         HashMap<String, String> messageData = new HashMap<>();
 
         messageData.put("Sender", senderId);
         messageData.put("Receiver", receiverId);
         messageData.put("Message", msgToSend);
+        messageData.put("Seen", seenOrNot);
+        messageData.put("Date and time", dateTime);
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Chats")
                 .push()
                 .setValue(messageData);
 
-        Message message = new Message(senderId, receiverId, msgToSend);
+        Message message = new Message(senderId, receiverId, msgToSend, dateTime, seenOrNot);
         messages.add(message);
         ChatRoomAdapter chatRoomAdapter = (ChatRoomAdapter) recyclerChat.getAdapter();
         chatRoomAdapter.addNewMessage(message);
         chatRoomAdapter.notifyItemInserted(chatRoomAdapter.getMessageArrayList().size()-1);
 
         recyclerChat.scrollToPosition(0);
+
+    }
+
+
+    public void seenTheMessage(String userId){
+
+        mReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+
+        mValueEventListener = mReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot data : snapshot.getChildren()){
+                    String receiverId = data.child("Receiver").getValue().toString();
+                    String senderId = data.child("Sender").getValue().toString();
+                    if(receiverId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()) && senderId.equals(userId)){
+                        snapshot.getRef().child("Seen").setValue("Seen");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         overridePendingTransition(R.anim.hold_animation, R.anim.activity_transition_animation);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mReference.removeEventListener(mValueEventListener);
     }
 }
