@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -105,6 +106,48 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
                 }
             }
         });
+
+
+        if(parent.equals("Chat")){
+            displayLastMessage(user.getId(), holder);
+        }else{
+            holder.getTxtLastMessage().setVisibility(View.GONE);
+            holder.getTxtUnreadMsgCount().setVisibility(View.GONE);
+        }
+
+    }
+
+    private void displayLastMessage(String userId, PeopleViewHolder holder) {
+
+        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String otherUser = userId;
+
+
+        FirebaseDatabase.getInstance().getReference().child("Chats")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        String lastMessage = "No messages";
+
+                        for(DataSnapshot data : snapshot.getChildren()){
+                            String senderId = data.child("Sender").getValue().toString();
+                            String receiverId = data.child("Receiver").getValue().toString();
+
+                            if((senderId.equals(currentUser) && receiverId.equals(otherUser)) || (senderId.equals(otherUser) && receiverId.equals(currentUser))){
+                                lastMessage = data.child("Message").getValue().toString();
+                            }
+                        }
+
+                        holder.getTxtLastMessage().setText(lastMessage);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
     }
 
     @Override
