@@ -71,8 +71,10 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
                         if(snapshot.child("status").getValue().equals("online")){
                             holder.getBtnOnlineOffline().setBackground(mContext.getDrawable(R.drawable.btn_online));
+                            notifyItemChanged(position);
                         }else{
                             holder.getBtnOnlineOffline().setBackground(mContext.getDrawable(R.drawable.btn_offline));
+                            notifyItemChanged(position);
                         }
 
                         holder.getTxtPeopleUsername().setText(snapshot.child("Username").getValue().toString());
