@@ -46,14 +46,14 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomViewHolder> {
 
         String message = messages.get(position).getMessage();
         String dateTime = messages.get(position).getDateTime();
-        String seenOrNot = messages.get(position).getSeenOrDelivered();
+        boolean seen = messages.get(position).getSeenOrDelivered();
 
         holder.getTxtMessage().setText(message);
 
         holder.getTxtDateTime().setText(dateTime);
 
 
-        if(seenOrNot.equals("Seen")){
+        if(seen){
             holder.getTxtSeenOrNot().setText("seen");
         }else{
             holder.getTxtSeenOrNot().setText("delivered");

@@ -45,12 +45,11 @@ public class ChatRoomActivity extends AppCompatActivity {
     private ValueEventListener mValueEventListener;
     private DatabaseReference mReference;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-
-        mReference = FirebaseDatabase.getInstance().getReference().child("Chats");
 
         edtMessage = findViewById(R.id.edt_message);
         btnSend = findViewById(R.id.btn_send_message);
@@ -92,8 +91,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             }
         });
 
-        seenTheMessage(senderId);
-
+        seenMessage(receiverId);
     }
 
     private void showAllPreviousMessages(){
@@ -106,11 +104,12 @@ public class ChatRoomActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         messages.clear();
                         for(DataSnapshot data : snapshot.getChildren()){
-                            String sender, receiver, message, seenOrNot, dateTime;
+                            String sender, receiver, message, dateTime;
+                            boolean seenOrNot;
                             sender = data.child("Sender").getValue().toString();
                             receiver = data.child("Receiver").getValue().toString();
                             message = data.child("Message").getValue().toString();
-                            seenOrNot = data.child("Seen").getValue().toString();
+                            seenOrNot = Boolean.parseBoolean(data.child("Seen").getValue().toString());
                             dateTime = data.child("Date and time").getValue().toString();
 
                             if( (sender.equals(senderId) && receiver.equals(receiverId)) || (sender.equals(receiverId) && receiver.equals(senderId)) ){
@@ -143,7 +142,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         String msgToSend = edtMessage.getText().toString();
         edtMessage.setText("");
 
-        String dateTime, seenOrNot = "sent";
+        String dateTime;
 
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date currentDate = new Date();
@@ -151,12 +150,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         dateTime = dateFormat.format(currentDate);
 
 
-        HashMap<String, String> messageData = new HashMap<>();
+        HashMap<String, Object> messageData = new HashMap<>();
 
         messageData.put("Sender", senderId);
         messageData.put("Receiver", receiverId);
         messageData.put("Message", msgToSend);
-        messageData.put("Seen", seenOrNot);
+        messageData.put("Seen", false);
         messageData.put("Date and time", dateTime);
 
         FirebaseDatabase.getInstance().getReference()
@@ -164,7 +163,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .push()
                 .setValue(messageData);
 
-        Message message = new Message(senderId, receiverId, msgToSend, dateTime, seenOrNot);
+        Message message = new Message(senderId, receiverId, msgToSend, dateTime, false);
         messages.add(message);
         ChatRoomAdapter chatRoomAdapter = (ChatRoomAdapter) recyclerChat.getAdapter();
         chatRoomAdapter.addNewMessage(message);
@@ -174,19 +173,30 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     }
 
-
-    public void seenTheMessage(String userId){
-
-        mReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+    public void seenMessage(String userId){
+        mReference = FirebaseDatabase.getInstance().getReference("Chats");
 
         mValueEventListener = mReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot data : snapshot.getChildren()){
-                    String receiverId = data.child("Receiver").getValue().toString();
-                    String senderId = data.child("Sender").getValue().toString();
-                    if(receiverId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()) && senderId.equals(userId)){
-                        data.getRef().child("Seen").setValue("Seen");
+                    String senderId, receiverId, message, dateTime;
+                    boolean isSeen;
+                    senderId = data.child("Sender").getValue().toString();
+                    receiverId = data.child("Receiver").getValue().toString();
+                    message = data.child("Message").getValue().toString();
+                    dateTime = data.child("Date and time").getValue().toString();
+                    isSeen = Boolean.parseBoolean(data.child("Seen").getValue().toString());
+
+//                    Log.i("Receiver id", receiverId);
+//                    Log.i("Current user", FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                    Log.i("User id", userId);
+//                    Log.i("Sender id", senderId+"\n\n");
+
+                    if(receiverId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()) && userId.equals(senderId)){
+                        //Log.i("IMPORTANT", message);
+
+                        data.getRef().child("Seen").setValue(true);
                     }
                 }
             }
@@ -198,6 +208,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -207,8 +218,9 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
+
         mReference.removeEventListener(mValueEventListener);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
     }
 
     @Override

@@ -1,9 +1,10 @@
 package firebase.kunasainath.doyourthing.model_classes;
 
 public class Message {
-    private String sender, receiver, message, dateTime, seenOrDelivered;
+    private String sender, receiver, message, dateTime;
+    private boolean seenOrDelivered;
 
-    public Message(String sender, String receiver, String message, String dateTime, String seenOrDelivered) {
+    public Message(String sender, String receiver, String message, String dateTime, boolean seenOrDelivered) {
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
@@ -43,11 +44,11 @@ public class Message {
         this.dateTime = dateTime;
     }
 
-    public String getSeenOrDelivered() {
+    public boolean getSeenOrDelivered() {
         return seenOrDelivered;
     }
 
-    public void setSeenOrDelivered(String seenOrDelivered) {
+    public void setSeenOrDelivered(boolean seenOrDelivered) {
         this.seenOrDelivered = seenOrDelivered;
     }
 }
