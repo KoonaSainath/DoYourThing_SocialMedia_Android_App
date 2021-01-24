@@ -262,4 +262,18 @@ public class PostUploadActivity extends AppCompatActivity implements View.OnClic
             }
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
+    }
 }

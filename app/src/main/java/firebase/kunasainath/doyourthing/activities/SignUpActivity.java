@@ -97,4 +97,5 @@ public class SignUpActivity extends AppCompatActivity implements SignupFragment.
             finish();
         }
     }
+
 }

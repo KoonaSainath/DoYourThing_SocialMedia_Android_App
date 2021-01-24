@@ -186,7 +186,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     String receiverId = data.child("Receiver").getValue().toString();
                     String senderId = data.child("Sender").getValue().toString();
                     if(receiverId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()) && senderId.equals(userId)){
-                        snapshot.getRef().child("Seen").setValue("Seen");
+                        data.getRef().child("Seen").setValue("Seen");
                     }
                 }
             }
@@ -207,6 +207,15 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
         mReference.removeEventListener(mValueEventListener);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("online");
+    }
+
 }
