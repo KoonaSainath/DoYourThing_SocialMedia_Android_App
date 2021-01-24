@@ -109,7 +109,11 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
 
         if(parent.equals("Chat")){
-            displayLastMessage(user.getId(), holder);
+            try {
+                displayLastMessage(user.getId(), holder);
+            } catch (Exception exception1) {
+                exception1.printStackTrace();
+            }
         }else{
             holder.getTxtLastMessage().setVisibility(View.GONE);
             holder.getTxtUnreadMsgCount().setVisibility(View.GONE);
@@ -117,7 +121,7 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
 
     }
 
-    private void displayLastMessage(String userId, PeopleViewHolder holder) {
+    private void displayLastMessage(String userId, PeopleViewHolder holder) throws Exception{
 
         String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String otherUser = userId;
