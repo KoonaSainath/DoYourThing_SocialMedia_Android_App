@@ -36,6 +36,8 @@
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
 
 
+        <!-- SERVICES FOR NOTIFICATION SERVICE -->
+
         <service android:name=".notification.MyFirebaseIdService"
             android:enabled="true"
             android:exported="true">
