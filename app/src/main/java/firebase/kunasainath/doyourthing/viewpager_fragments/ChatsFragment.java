@@ -1,8 +1,10 @@
 package firebase.kunasainath.doyourthing.viewpager_fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,8 @@ import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 import firebase.kunasainath.doyourthing.model_classes.User;
 import firebase.kunasainath.doyourthing.notification.Token;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class ChatsFragment extends Fragment {
 
     private RecyclerView recyclerUsersChat;
@@ -42,6 +46,9 @@ public class ChatsFragment extends Fragment {
     private SwipeRefreshLayout refreshUserChats;
     private ProgressBar progressUserChats;
     private EditText edtSearch;
+
+    public static final String SHARED_PREFERENCES_NAME = "SHARED PREFERENCES FOR UNREAD MESSAGES";
+    public static final String UNREAD_MESSAGES_COUNT = "UNREAD MESSAGES COUNT";
 
     public ChatsFragment() {
     }
@@ -120,6 +127,7 @@ public class ChatsFragment extends Fragment {
                             users.clear();
 
                             for (DataSnapshot data : snapshot.getChildren()) {
+
                                 if (Boolean.parseBoolean(data.child("IsFriend").getValue().toString())) {
                                     String userId = data.child("UserId").getValue().toString();
                                     String username = data.child("Username").getValue().toString();
@@ -201,10 +209,41 @@ public class ChatsFragment extends Fragment {
 
             }
         });
-
-
-
-
-
     }
+
+    public int getUnreadMsgsCount(String userId){
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference("Chats").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = 0;
+                for(DataSnapshot data : snapshot.getChildren()){
+                    String senderId = data.child("Sender").getValue().toString();
+                    String receiverId = data.child("Receiver").getValue().toString();
+                    boolean seen = Boolean.parseBoolean(data.child("Seen").getValue().toString());
+
+                    if(senderId.equals(currentUserId) && receiverId.equals(userId) && !seen){
+                        count++;
+                    }
+                }
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                editor.putInt(UNREAD_MESSAGES_COUNT, count);
+
+                editor.apply();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+        int count = sharedPreferences.getInt(UNREAD_MESSAGES_COUNT, 0);
+
+        Log.i("SHARED PREF", Integer.toString(sharedPreferences.getInt(UNREAD_MESSAGES_COUNT, 1)));
+        return count;
+    }
+
 }
