@@ -226,7 +226,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     Token token = dataSnapshot.getValue(Token.class);
 
                     //LAST PARAMETER MAY BE receiverId
-                    Data data = new Data(FirebaseAuth.getInstance().getCurrentUser().getUid(), R.mipmap.ic_launcher, userName + ": " + message, "New message", senderId);
+                    Data data = new Data(FirebaseAuth.getInstance().getCurrentUser().getUid(), R.mipmap.ic_launcher, userName + ": " + message, "New message", receiverId);
 
                     Sender sender = new Sender(data, token.getToken());
 
