@@ -46,7 +46,7 @@ dependencies {
 
 
     //LIBRARIES FOR CHAT NOTIFICATIONS
-    implementation 'com.squareup.retrofit2:retrofit2:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.google.firebase:firebase-messaging:17.3.1'
 }
