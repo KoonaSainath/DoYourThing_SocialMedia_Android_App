@@ -19,9 +19,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import java.util.Comparator;
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 import firebase.kunasainath.doyourthing.model_classes.User;
+import firebase.kunasainath.doyourthing.notification.Token;
 
 public class ChatsFragment extends Fragment {
 
@@ -82,7 +85,11 @@ public class ChatsFragment extends Fragment {
                 updateChats(searchText);
             }
         });
+
+
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -150,7 +157,21 @@ public class ChatsFragment extends Fragment {
         }else{
             progressUserChats.setVisibility(View.INVISIBLE);
         }
+
+        //CHAT NOTIFICATIONS
+
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+
     }
+
+    //CHAT NOTIFICATIONS
+
+    private void updateToken(String token){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token token1 = new Token(token);
+        reference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(token1);
+    }
+
     public void updateChats(String searchText){
         users.clear();
         Query query = FirebaseDatabase.getInstance().getReference().
