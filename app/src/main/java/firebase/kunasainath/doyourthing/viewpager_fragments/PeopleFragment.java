@@ -119,7 +119,7 @@ public class PeopleFragment extends Fragment{
 
                                 username = userdata.get("Username").toString();
 
-                                User user = new User(userId, username);
+                                User user = new User(userId, username, 0);
 
                                 if (!userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                                     users.add(user);
@@ -169,7 +169,7 @@ public class PeopleFragment extends Fragment{
                 for(DataSnapshot data : snapshot.getChildren()){
                     String username = data.child("Username").getValue().toString();
                     String userid = data.getKey();
-                    User user = new User(userid, username);
+                    User user = new User(userid, username, 0);
 
                     if(!userid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         users.add(user);

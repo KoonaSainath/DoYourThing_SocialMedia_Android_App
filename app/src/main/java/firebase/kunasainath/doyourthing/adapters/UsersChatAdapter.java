@@ -111,6 +111,14 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
         if(parent.equals("Chat")){
             try {
                 displayLastMessage(user.getId(), holder);
+
+                if(user.getUnreadMsgCount() == 0){
+                    holder.getTxtUnreadMsgCount().setVisibility(View.GONE);
+                }else{
+                    holder.getTxtUnreadMsgCount().setVisibility(View.VISIBLE);
+                    holder.getTxtUnreadMsgCount().setText(Integer.toString(user.getUnreadMsgCount()));
+                }
+
             } catch (Exception exception1) {
                 exception1.printStackTrace();
             }

@@ -75,7 +75,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
             android:gravity="center"
-            android:textSize="8sp"
+            android:textSize="14sp"
             android:textColor="@color/white"
             android:textStyle="bold"
             android:layout_margin="16dp"

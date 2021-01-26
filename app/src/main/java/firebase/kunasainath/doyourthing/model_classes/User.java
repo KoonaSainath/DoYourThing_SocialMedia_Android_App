@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     private String id, name;
-    //private int unreadMsgCount;
+    private int unreadMsgCount;
 
-    public User(String id, String name/*, int unreadMsgCount*/) {
+    public User(String id, String name, int unreadMsgCount) {
         this.id = id;
         this.name = name;
-        //this.unreadMsgCount = unreadMsgCount;
+        this.unreadMsgCount = unreadMsgCount;
     }
 
     public String getId() {
@@ -28,11 +28,11 @@ public class User implements Serializable {
         this.name = name;
     }
 
-   /* public int getUnreadMsgCount() {
+    public int getUnreadMsgCount() {
         return unreadMsgCount;
     }
 
     public void setUnreadMsgCount(int unreadMsgCount) {
         this.unreadMsgCount = unreadMsgCount;
-    }*/
+    }
 }

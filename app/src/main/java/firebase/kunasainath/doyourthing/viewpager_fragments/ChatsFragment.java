@@ -66,6 +66,8 @@ public class ChatsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        updateUnreadMessagesCount();
+
         showUserChats();
 
         refreshUserChats.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -94,6 +96,52 @@ public class ChatsFragment extends Fragment {
         });
 
 
+    }
+
+    public void updateUnreadMessagesCount(){
+        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        FirebaseDatabase.getInstance().getReference("Users").child(currentUser).child("Friends").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot data : snapshot.getChildren()){
+                    boolean isFriend = Boolean.parseBoolean(data.child("IsFriend").getValue().toString());
+                    String friendUserId = data.child("UserId").getValue().toString();
+
+                    if(isFriend) {
+                        FirebaseDatabase.getInstance().getReference("Chats").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                int count = 0;
+                                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                    String senderId = dataSnapshot.child("Sender").getValue().toString();
+                                    String receiverId = dataSnapshot.child("Receiver").getValue().toString();
+
+                                    boolean seen = Boolean.parseBoolean(dataSnapshot.child("Seen").getValue().toString());
+
+                                    if(senderId.equals(friendUserId) && receiverId.equals(currentUser) && !seen){
+                                        count++;
+                                    }
+                                }
+                                data.getRef().child("UnreadMessageCount").setValue(count);
+
+                                data.getRef().child("UnreadMessage").removeValue();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 
@@ -131,8 +179,9 @@ public class ChatsFragment extends Fragment {
                                 if (Boolean.parseBoolean(data.child("IsFriend").getValue().toString())) {
                                     String userId = data.child("UserId").getValue().toString();
                                     String username = data.child("Username").getValue().toString();
+                                    int unreadMsgCount = Integer.parseInt(data.child("UnreadMessageCount").getValue().toString());
 
-                                    User user = new User(userId, username);
+                                    User user = new User(userId, username, unreadMsgCount);
 
                                     users.add(user);
                                 }
@@ -196,7 +245,9 @@ public class ChatsFragment extends Fragment {
                 for(DataSnapshot data : snapshot.getChildren()){
                     String id = data.child("UserId").getValue().toString();
                     String name = data.child("Username").getValue().toString();
-                    User user = new User(id, name);
+                    int unreadMsgCount = Integer.parseInt(data.child("UnreadMessageCount").getValue().toString());
+
+                    User user = new User(id, name, unreadMsgCount);
                     users.add(user);
                 }
 
