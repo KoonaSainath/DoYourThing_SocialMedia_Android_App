@@ -1,10 +1,10 @@
 package firebase.kunasainath.doyourthing.viewpager_fragments;
 
-import android.content.SharedPreferences;
+import android.app.ProgressDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,8 +37,6 @@ import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
 import firebase.kunasainath.doyourthing.model_classes.User;
 import firebase.kunasainath.doyourthing.notification.Token;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class ChatsFragment extends Fragment {
 
     private RecyclerView recyclerUsersChat;
@@ -47,8 +46,14 @@ public class ChatsFragment extends Fragment {
     private ProgressBar progressUserChats;
     private EditText edtSearch;
 
-    public static final String SHARED_PREFERENCES_NAME = "SHARED PREFERENCES FOR UNREAD MESSAGES";
-    public static final String UNREAD_MESSAGES_COUNT = "UNREAD MESSAGES COUNT";
+    public static ValueEventListener mValueEventListener;
+    public static DatabaseReference sDatabaseReference;
+
+    public static ValueEventListener mainValueEventListener;
+    public static DatabaseReference mainReference;
+
+
+    ProgressDialog dialog;
 
     public ChatsFragment() {
     }
@@ -62,9 +67,12 @@ public class ChatsFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        dialog = new ProgressDialog(getActivity(), ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
 
         updateUnreadMessagesCount();
 
@@ -99,9 +107,12 @@ public class ChatsFragment extends Fragment {
     }
 
     public void updateUnreadMessagesCount(){
+
         String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        FirebaseDatabase.getInstance().getReference("Users").child(currentUser).child("Friends").addValueEventListener(new ValueEventListener() {
+        mainReference = FirebaseDatabase.getInstance().getReference("Users").child(currentUser).child("Friends");
+
+        mainValueEventListener = mainReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot data : snapshot.getChildren()){
@@ -109,7 +120,8 @@ public class ChatsFragment extends Fragment {
                     String friendUserId = data.child("UserId").getValue().toString();
 
                     if(isFriend) {
-                        FirebaseDatabase.getInstance().getReference("Chats").addValueEventListener(new ValueEventListener() {
+                        sDatabaseReference = FirebaseDatabase.getInstance().getReference("Chats");
+                        mValueEventListener = sDatabaseReference.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 int count = 0;
@@ -124,8 +136,6 @@ public class ChatsFragment extends Fragment {
                                     }
                                 }
                                 data.getRef().child("UnreadMessageCount").setValue(count);
-
-                                data.getRef().child("UnreadMessage").removeValue();
                             }
 
                             @Override
@@ -157,12 +167,15 @@ public class ChatsFragment extends Fragment {
         return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void showUserChats(){
         users = new ArrayList<User>();
 
         progressUserChats.setVisibility(View.VISIBLE);
 
         if(edtSearch.getText().toString().equals("")) {
+
+            displayProgressDialog();
 
             FirebaseDatabase.getInstance().getReference()
                     .child("Users")
@@ -211,6 +224,7 @@ public class ChatsFragment extends Fragment {
 
                         }
                     });
+            dismissProgressDialog();
         }else{
             progressUserChats.setVisibility(View.INVISIBLE);
         }
@@ -245,10 +259,17 @@ public class ChatsFragment extends Fragment {
                 for(DataSnapshot data : snapshot.getChildren()){
                     String id = data.child("UserId").getValue().toString();
                     String name = data.child("Username").getValue().toString();
-                    int unreadMsgCount = Integer.parseInt(data.child("UnreadMessageCount").getValue().toString());
+                    boolean isFriend = Boolean.parseBoolean(data.child("IsFriend").getValue().toString());
+                    int unreadMsgCount = 0;
+                    if(data.hasChild("UnreadMessageCount")) {
+                        unreadMsgCount = Integer.parseInt(data.child("UnreadMessageCount").getValue().toString());
+                    }
 
-                    User user = new User(id, name, unreadMsgCount);
-                    users.add(user);
+                    if(isFriend) {
+
+                        User user = new User(id, name, unreadMsgCount);
+                        users.add(user);
+                    }
                 }
 
                 mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
@@ -262,39 +283,26 @@ public class ChatsFragment extends Fragment {
         });
     }
 
-    public int getUnreadMsgsCount(String userId){
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseDatabase.getInstance().getReference("Chats").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int count = 0;
-                for(DataSnapshot data : snapshot.getChildren()){
-                    String senderId = data.child("Sender").getValue().toString();
-                    String receiverId = data.child("Receiver").getValue().toString();
-                    boolean seen = Boolean.parseBoolean(data.child("Seen").getValue().toString());
-
-                    if(senderId.equals(currentUserId) && receiverId.equals(userId) && !seen){
-                        count++;
-                    }
-                }
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                editor.putInt(UNREAD_MESSAGES_COUNT, count);
-
-                editor.apply();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-        int count = sharedPreferences.getInt(UNREAD_MESSAGES_COUNT, 0);
-
-        Log.i("SHARED PREF", Integer.toString(sharedPreferences.getInt(UNREAD_MESSAGES_COUNT, 1)));
-        return count;
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void displayProgressDialog(){
+        dialog = new ProgressDialog(getActivity(), ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+        dialog.setTitle("Wait");
+        dialog.setMessage("Your chats are getting updated...");
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
     }
 
+    public void dismissProgressDialog(){
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        /*
+        mainReference.removeEventListener(mainValueEventListener);
+        sDatabaseReference.removeEventListener(mValueEventListener);
+         */
+    }
 }
