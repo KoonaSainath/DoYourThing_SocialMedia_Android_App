@@ -1,6 +1,5 @@
 package firebase.kunasainath.doyourthing.activities;
 
-import android.app.ProgressDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -64,8 +63,6 @@ public class ChatRoomActivity extends AppCompatActivity {
     APIService apiService;
     boolean notify = false;
 
-    ProgressDialog dialog;
-
 
 
     @Override
@@ -73,13 +70,11 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
 
-        dialog = new ProgressDialog(this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
-
-
         edtMessage = findViewById(R.id.edt_message);
         btnSend = findViewById(R.id.btn_send_message);
         recyclerChat = findViewById(R.id.recycler_chat);
         progressChat = findViewById(R.id.progress_chatroom);
+
 
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
@@ -105,6 +100,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 });
 
         btnSend.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
                 if(edtMessage.getText().toString().length() == 0){
@@ -169,7 +165,6 @@ public class ChatRoomActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void sendMessage(){
 
-        displayProgressDialog();
 
         String msgToSend = edtMessage.getText().toString();
         edtMessage.setText("");
@@ -230,7 +225,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                     }
                 });
 
-        dismissProgressDialog();
 
     }
 
@@ -334,17 +328,4 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void displayProgressDialog(){
-        dialog = new ProgressDialog(this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
-        dialog.setTitle("Wait");
-        dialog.setMessage("Sending your message...");
-        dialog.setCancelable(false);
-        dialog.create();
-        dialog.show();
-    }
-
-    public void dismissProgressDialog(){
-        dialog.dismiss();
-    }
 }

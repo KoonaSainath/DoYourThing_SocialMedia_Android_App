@@ -45,10 +45,12 @@ public class ChatsFragment extends Fragment {
     private ProgressBar progressUserChats;
     private EditText edtSearch;
 
-    public static ValueEventListener mValueEventListener;
+    public static ValueEventListener mainListener;
+
+    public static ValueEventListener sListener;
+
     public static DatabaseReference sDatabaseReference;
 
-    public static ValueEventListener mainValueEventListener;
     public static DatabaseReference mainReference;
 
 
@@ -63,6 +65,9 @@ public class ChatsFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        unreadMsgsCount();
+
         super.onCreate(savedInstanceState);
     }
 
@@ -73,9 +78,8 @@ public class ChatsFragment extends Fragment {
 
         dialog = new ProgressDialog(getActivity(), ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
 
-        updateUnreadMessagesCount();
-
         showUserChats();
+
 
         refreshUserChats.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -105,54 +109,6 @@ public class ChatsFragment extends Fragment {
 
     }
 
-    public void updateUnreadMessagesCount(){
-
-        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        mainReference = FirebaseDatabase.getInstance().getReference("Users").child(currentUser).child("Friends");
-
-        mainValueEventListener = mainReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot data : snapshot.getChildren()){
-                    boolean isFriend = Boolean.parseBoolean(data.child("IsFriend").getValue().toString());
-                    String friendUserId = data.child("UserId").getValue().toString();
-
-                    if(isFriend) {
-                        sDatabaseReference = FirebaseDatabase.getInstance().getReference("Chats");
-                        mValueEventListener = sDatabaseReference.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                int count = 0;
-                                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                                    String senderId = dataSnapshot.child("Sender").getValue().toString();
-                                    String receiverId = dataSnapshot.child("Receiver").getValue().toString();
-
-                                    boolean seen = Boolean.parseBoolean(dataSnapshot.child("Seen").getValue().toString());
-
-                                    if(senderId.equals(friendUserId) && receiverId.equals(currentUser) && !seen){
-                                        count++;
-                                    }
-                                }
-                                data.getRef().child("UnreadMessageCount").setValue(count);
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
 
 
     @Override
@@ -163,8 +119,10 @@ public class ChatsFragment extends Fragment {
         refreshUserChats = view.findViewById(R.id.refresh_chats);
         progressUserChats = view.findViewById(R.id.progress_chat);
         edtSearch = view.findViewById(R.id.edt_search);
+
         return view;
     }
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void showUserChats(){
@@ -303,12 +261,51 @@ public class ChatsFragment extends Fragment {
         dialog.dismiss();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        /*
-        mainReference.removeEventListener(mainValueEventListener);
-        sDatabaseReference.removeEventListener(mValueEventListener);
-         */
+    public void unreadMsgsCount(){
+        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        mainReference = FirebaseDatabase.getInstance().getReference("Users").child(currentUser).child("Friends");
+
+
+        mainListener = mainReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot data : snapshot.getChildren()){
+                    boolean isFriend = Boolean.parseBoolean(data.child("IsFriend").getValue().toString());
+                    String friendUserId = data.child("UserId").getValue().toString();
+
+                    if(isFriend) {
+                        sDatabaseReference = FirebaseDatabase.getInstance().getReference("Chats");
+                        sListener = sDatabaseReference.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                int count = 0;
+                                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                    String senderId = dataSnapshot.child("Sender").getValue().toString();
+                                    String receiverId = dataSnapshot.child("Receiver").getValue().toString();
+
+                                    boolean seen = Boolean.parseBoolean(dataSnapshot.child("Seen").getValue().toString());
+
+                                    if(senderId.equals(friendUserId) && receiverId.equals(currentUser) && !seen){
+                                        count++;
+                                    }
+                                }
+                                data.getRef().child("UnreadMessageCount").setValue(count);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }

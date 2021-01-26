@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ViewPagerAdapter mViewPagerAdapter;
 
+    int unreadMessages = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +58,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setSupportActionBar(mToolbar);
 
+
         mViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), 0);
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mTabLayout.setupWithViewPager(mViewPager);
+
 
         fabMain = findViewById(R.id.fab_main);
         fabProfile = findViewById(R.id.fab_profile);
@@ -231,4 +235,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("offline");
     }
+
+
 }

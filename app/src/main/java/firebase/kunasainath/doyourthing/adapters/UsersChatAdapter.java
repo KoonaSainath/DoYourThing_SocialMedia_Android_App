@@ -104,13 +104,12 @@ public class UsersChatAdapter extends RecyclerView.Adapter<PeopleViewHolder> {
                     mChatInterface = (ChatInterface) mContext;
                     mChatInterface.startChatRoom(user);
 
-                   /* ChatsFragment.sDatabaseReference.removeEventListener(ChatsFragment.mValueEventListener);
-                    ChatsFragment.mainReference.removeEventListener(ChatsFragment.mainValueEventListener);
+
 
                     FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                             .child("Friends")
                             .child(user.getId())
-                            .child("UnreadMessageCount").setValue(0);*/
+                            .child("UnreadMessageCount").setValue(0);
                 }
             }
         });
