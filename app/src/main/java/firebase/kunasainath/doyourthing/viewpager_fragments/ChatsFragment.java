@@ -30,7 +30,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import firebase.kunasainath.doyourthing.R;
 import firebase.kunasainath.doyourthing.adapters.UsersChatAdapter;
@@ -192,22 +191,22 @@ public class ChatsFragment extends Fragment {
                                 if (Boolean.parseBoolean(data.child("IsFriend").getValue().toString())) {
                                     String userId = data.child("UserId").getValue().toString();
                                     String username = data.child("Username").getValue().toString();
-                                    int unreadMsgCount = Integer.parseInt(data.child("UnreadMessageCount").getValue().toString());
+                                    String dateTime = "";
+                                    if(data.hasChild("LastMessageDateTime")) {
+                                        dateTime = data.child("LastMessageDateTime").getValue().toString();
+                                    }
+                                    int unreadMsgCount = 0;
+                                    if(data.hasChild("UnreadMessageCount")) {
+                                        unreadMsgCount = Integer.parseInt(data.child("UnreadMessageCount").getValue().toString());
+                                    }
 
-                                    User user = new User(userId, username, unreadMsgCount);
+                                    User user = new User(userId, username, unreadMsgCount, dateTime);
 
                                     users.add(user);
                                 }
                             }
 
-                            Comparator<User> sorter = new Comparator<User>() {
-                                @Override
-                                public int compare(User a, User b) {
-                                    return -1;
-                                }
-                            };
-
-                            Collections.sort(users, sorter);
+                            Collections.sort(users, new ChatSorter());
 
                             mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
                             recyclerUsersChat.setAdapter(mUsersChatAdapter);
@@ -259,6 +258,11 @@ public class ChatsFragment extends Fragment {
                 for(DataSnapshot data : snapshot.getChildren()){
                     String id = data.child("UserId").getValue().toString();
                     String name = data.child("Username").getValue().toString();
+                    String dateTime = "";
+                    if(data.hasChild("LastMessageDateTime")) {
+                        dateTime = data.child("LastMessageDateTime").getValue().toString();
+                    }
+
                     boolean isFriend = Boolean.parseBoolean(data.child("IsFriend").getValue().toString());
                     int unreadMsgCount = 0;
                     if(data.hasChild("UnreadMessageCount")) {
@@ -267,10 +271,12 @@ public class ChatsFragment extends Fragment {
 
                     if(isFriend) {
 
-                        User user = new User(id, name, unreadMsgCount);
+                        User user = new User(id, name, unreadMsgCount, dateTime);
                         users.add(user);
                     }
                 }
+
+                Collections.sort(users, new ChatSorter());
 
                 mUsersChatAdapter = new UsersChatAdapter(users, getActivity(), "Chat");
                 recyclerUsersChat.setAdapter(mUsersChatAdapter);

@@ -5,11 +5,13 @@ import java.io.Serializable;
 public class User implements Serializable {
     private String id, name;
     private int unreadMsgCount;
+    private String dateTime;
 
-    public User(String id, String name, int unreadMsgCount) {
+    public User(String id, String name, int unreadMsgCount, String dateTime) {
         this.id = id;
         this.name = name;
         this.unreadMsgCount = unreadMsgCount;
+        this.dateTime = dateTime;
     }
 
     public String getId() {
@@ -34,5 +36,13 @@ public class User implements Serializable {
 
     public void setUnreadMsgCount(int unreadMsgCount) {
         this.unreadMsgCount = unreadMsgCount;
+    }
+
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 }

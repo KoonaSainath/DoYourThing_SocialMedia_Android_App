@@ -1,5 +1,7 @@
 package firebase.kunasainath.doyourthing.activities;
 
+import android.app.ProgressDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,11 +64,17 @@ public class ChatRoomActivity extends AppCompatActivity {
     APIService apiService;
     boolean notify = false;
 
+    ProgressDialog dialog;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
+
+        dialog = new ProgressDialog(this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+
 
         edtMessage = findViewById(R.id.edt_message);
         btnSend = findViewById(R.id.btn_send_message);
@@ -157,7 +166,11 @@ public class ChatRoomActivity extends AppCompatActivity {
                 });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void sendMessage(){
+
+        displayProgressDialog();
+
         String msgToSend = edtMessage.getText().toString();
         edtMessage.setText("");
 
@@ -168,6 +181,11 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         dateTime = dateFormat.format(currentDate);
 
+        FirebaseDatabase.getInstance().getReference("Users").child(senderId).child("Friends").child(receiverId)
+                .child("LastMessageDateTime").setValue(dateTime);
+
+        FirebaseDatabase.getInstance().getReference("Users").child(receiverId).child("Friends").child(senderId)
+                .child("LastMessageDateTime").setValue(dateTime);
 
         HashMap<String, Object> messageData = new HashMap<>();
 
@@ -211,6 +229,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                     }
                 });
+
+        dismissProgressDialog();
 
     }
 
@@ -313,4 +333,18 @@ public class ChatRoomActivity extends AppCompatActivity {
         FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status").setValue("online");
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void displayProgressDialog(){
+        dialog = new ProgressDialog(this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+        dialog.setTitle("Wait");
+        dialog.setMessage("Sending your message...");
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+    public void dismissProgressDialog(){
+        dialog.dismiss();
+    }
 }
